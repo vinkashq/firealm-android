@@ -58,6 +58,7 @@ public class Book extends FirealmObject {
         book.setTitle("Agni Siragugal");
         book.setAuthorName("A. P. J. Abdul Kalam");
         book.setPrice(140);
+        book.setFirebaseReferencePath("child/path/books", "book001");
         book.writeAsync(new CompletionListener() {
             @Override
             public void writtenOnRealm() {
