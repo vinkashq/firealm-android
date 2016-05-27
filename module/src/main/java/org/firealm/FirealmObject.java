@@ -84,7 +84,7 @@ public class FirealmObject extends RealmObject {
             @Override
             public void onSuccess() {
                 if (listener != null)
-                    listener.successOnRealm();
+                    listener.writtenOnRealm();
                 if (getDatabaseReference() == null) {
                     if (listener != null)
                         listener.errorOnFirebase(DatabaseError.fromException(new Throwable("Firebase reference path not exist")));
@@ -94,7 +94,7 @@ public class FirealmObject extends RealmObject {
                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                             if (databaseError == null) {
                                 if (listener != null)
-                                    listener.successOnFirebase();
+                                    listener.writtenOnFirebase();
                             } else {
                                 if (listener != null)
                                     listener.errorOnFirebase(databaseError);
