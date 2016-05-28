@@ -1,6 +1,7 @@
 package org.firealm;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -8,7 +9,7 @@ import com.google.firebase.database.Exclude;
 
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
-import io.realm.RealmObject;
+import io.realm.RealmModel;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
@@ -16,110 +17,190 @@ import io.realm.annotations.Required;
 /**
  * Created by Vinoth on 27-5-16.
  */
-public class FirealmObject extends RealmObject {
+public abstract class FirealmObject {
 
-    public FirealmObject() {
+    @Exclude
+    public static Realm getLocal() {
+        return Firealm.getRealm();
     }
 
-    public static Firealm getFirealm() {
-        return Firealm.getInstance();
+    @Ignore
+    private static DatabaseReference cloud;
+
+    @Exclude
+    public static DatabaseReference getCloud() {
+        return cloud;
+    }
+
+    public static void setCloud(DatabaseReference databaseReference) {
+        cloud = databaseReference;
+    }
+
+    public static void setFirebaseReferencePath(String path) {
+        cloud = Firealm.getFirebase().getReference(path);
     }
 
     @PrimaryKey
     @Required
-    private String key;
-
-    @Exclude
-    public String getKey() {
-        return key;
-    }
-
-    protected void setKey(String key) {
-        this.key = key;
-    }
+    private String firebaseKey;
 
     private String priority;
 
-    @Exclude
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    @Exclude
-    protected FirealmObject getFirealmObject(Realm realm) {
-        return realm.copyToRealm(this);
-    }
-
-    @Ignore
-    private DatabaseReference databaseReference;
-
-    @Exclude
-    public DatabaseReference getDatabaseReference() {
-        return databaseReference;
-    }
-
-    protected void setDatabaseReference(DatabaseReference reference) {
-        databaseReference = reference;
-    }
-
-    public void setFirebaseReferencePath(String referencePath, String key) {
-        setDatabaseReference(getFirealm().getFirebaseDatabase().getReference(referencePath).child(key));
+    public FirealmObject() {
+        setRealm(new RealmData());
     }
 
     public RealmAsyncTask writeAsync() {
         return writeAsync(null);
     }
 
-    public RealmAsyncTask writeAsync(@Nullable final CompletionListener listener) {
-        return getFirealm().getRealm().executeTransactionAsync(new Realm.Transaction() {
+    public RealmAsyncTask writeAsync(Object priority) {
+        getFirebase().setPriority(priority);
+        return writeAsync();
+    }
+
+    public RealmAsyncTask writeAsync(@Nullable final WriteListener listener) {
+        return getRealm().writeAsync(new org.firealm.realm.WriteListener() {
             @Override
-            public void execute(Realm realm) {
-                writeTo(realm);
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
+            public void writtenOnRealm() {
                 if (listener != null)
                     listener.writtenOnRealm();
-                if (getDatabaseReference() == null) {
+                if (getCloud() == null) {
                     if (listener != null)
                         listener.errorOnFirebase(DatabaseError.fromException(new Throwable("Firebase reference path not exist")));
                 } else
-                    writeToFirebase(new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                            if (databaseError == null) {
-                                if (listener != null)
-                                    listener.writtenOnFirebase();
-                            } else {
-                                if (listener != null)
-                                    listener.errorOnFirebase(databaseError);
-                            }
-                        }
-                    });
+                    getFirebase().write(listener);
             }
-        }, new Realm.Transaction.OnError() {
+
             @Override
-            public void onError(Throwable error) {
-                if (listener != null)
-                    listener.errorOnRealm(error);
+            public void errorOnRealm(Throwable error) {
+                listener.errorOnRealm(error);
             }
         });
     }
 
-    protected void writeToFirebase(DatabaseReference.CompletionListener listener) {
-        if (getPriority() == null)
-            getDatabaseReference().setValue(this, getPriority(), listener);
-        else
-            getDatabaseReference().setValue(this, listener);
+    public RealmAsyncTask writeAsync(@Nullable final WriteListener listener, Object priority) {
+        getFirebase().setPriority(priority);
+        return writeAsync(listener);
     }
 
-    protected void writeTo(Realm realm) {
-        getFirealmObject(realm);
+    @Ignore
+    private FirebaseData firebase;
+
+    @Exclude
+    public FirebaseData getFirebase() {
+        return firebase;
+    }
+
+    protected void setFirebase(FirebaseData cloud) {
+        this.firebase = cloud;
+    }
+
+    public void setKey(String key) {
+        setFirebase(new FirebaseData(key));
+    }
+
+    @Ignore
+    private RealmData realm;
+
+    @Exclude
+    public RealmData getRealm() {
+        return realm;
+    }
+
+    public void setRealm(RealmData realm) {
+        this.realm = realm;
+    }
+
+    public abstract RealmModel get();
+
+    public class RealmData implements Realm.Transaction {
+
+        public String getPriority() {
+            return priority;
+        }
+
+        @Override
+        public void execute(Realm realm) {
+            realm.copyToRealmOrUpdate(get());
+        }
+
+        public void write() {
+            getLocal().executeTransaction(this);
+        }
+
+        public RealmAsyncTask writeAsync(final org.firealm.realm.WriteListener listener) {
+            return getLocal().executeTransactionAsync(this, new OnSuccess() {
+                @Override
+                public void onSuccess() {
+                    listener.writtenOnRealm();
+                }
+            }, new OnError() {
+                @Override
+                public void onError(Throwable error) {
+                    listener.errorOnRealm(error);
+                }
+            });
+        }
+
+    }
+
+    public class FirebaseData {
+
+        public FirebaseData(String key) {
+            setKey(key);
+            databaseReference = getCloud().child(key);
+        }
+
+        private Object priority;
+        private DatabaseReference databaseReference;
+
+        public DatabaseReference getDatabaseReference() {
+            return databaseReference;
+        }
+
+        public void setDatabaseReference(DatabaseReference databaseReference) {
+            this.databaseReference = databaseReference;
+        }
+
+        public String getKey() {
+            return firebaseKey;
+        }
+
+        public void setKey(String key) {
+            firebaseKey = key;
+        }
+
+        public Object getPriority() {
+            return priority;
+        }
+
+        public void setPriority(Object priority) {
+            this.priority = priority;
+            FirealmObject.this.priority = priority.toString();
+        }
+
+        protected void write(DatabaseReference.CompletionListener listener) {
+            if (getPriority() == null)
+                getDatabaseReference().setValue(FirealmObject.this, getPriority(), listener);
+            else
+                getDatabaseReference().setValue(FirealmObject.this, listener);
+        }
+
+        public void write(final org.firealm.firebase.WriteListener listener) {
+            write(new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError == null) {
+                        if (listener != null)
+                            listener.writtenOnFirebase();
+                    } else {
+                        if (listener != null)
+                            listener.errorOnFirebase(databaseError);
+                    }
+                }
+            });
+        }
     }
 
 }

@@ -2,10 +2,18 @@ package org.firealm.test;
 
 import org.firealm.FirealmObject;
 
+import io.realm.RealmModel;
+import io.realm.annotations.RealmClass;
+
 /**
  * Created by Vinoth on 27-5-16.
  */
-public class Book extends FirealmObject {
+@RealmClass
+public class Book implements RealmModel {
+
+    public RealmModel get() {
+        return this;
+    }
 
     private String title;
     private String authorName;
