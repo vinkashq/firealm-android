@@ -14,7 +14,7 @@ Add this on your project's root 'build.gradle' file
 Add this on your app folder's 'build.gradle' file
 ```
   dependencies {
-        compile 'org.firealm:firealm-android:1.0.0'
+        compile 'org.firealm:firealm-android:0.0.1'
   }
 ```
 #How to use
