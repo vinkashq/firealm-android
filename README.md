@@ -1,5 +1,9 @@
 # Firealm for Android
 
+[![](https://jitpack.io/v/org.firealm/firealm-android.svg)](https://jitpack.io/#org.firealm/firealm-android)
+[![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)
+<hr />
+
 ### Firebase + Realm => Firealm
 Manage both remote (Firebase) &amp; local (Realm) database
 
