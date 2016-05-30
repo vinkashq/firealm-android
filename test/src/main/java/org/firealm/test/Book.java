@@ -1,18 +1,27 @@
 package org.firealm.test;
 
+import org.firealm.FirealmModel;
 import org.firealm.FirealmObject;
 
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Vinoth on 27-5-16.
  */
-@RealmClass
-public class Book implements RealmModel {
+public class Book extends RealmObject implements FirealmModel {
 
-    public RealmModel get() {
-        return this;
+    @PrimaryKey
+    private String id;
+
+    @Override
+    public String getPrimaryKey() {
+        return id;
+    }
+
+    @Override
+    public void setPrimaryKey(String value) {
+        id = value;
     }
 
     private String title;

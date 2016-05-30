@@ -1,7 +1,6 @@
 package org.firealm;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,6 +9,7 @@ import com.google.firebase.database.Exclude;
 import io.realm.Realm;
 import io.realm.RealmAsyncTask;
 import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
@@ -17,7 +17,14 @@ import io.realm.annotations.Required;
 /**
  * Created by Vinoth on 27-5-16.
  */
-public abstract class FirealmObject {
+public class FirealmObject<H extends RealmObject> {
+
+    H h;
+
+    public FirealmObject(H h) {
+        setRealm(new RealmData());
+        this.h = h;
+    }
 
     @Exclude
     public static Realm getLocal() {
@@ -38,6 +45,7 @@ public abstract class FirealmObject {
 
     public static void setFirebaseReferencePath(String path) {
         cloud = Firealm.getFirebase().getReference(path);
+
     }
 
     @PrimaryKey
@@ -112,8 +120,6 @@ public abstract class FirealmObject {
         this.realm = realm;
     }
 
-    public abstract RealmModel get();
-
     public class RealmData implements Realm.Transaction {
 
         public String getPriority() {
@@ -122,7 +128,7 @@ public abstract class FirealmObject {
 
         @Override
         public void execute(Realm realm) {
-            realm.copyToRealmOrUpdate(get());
+            realm.copyToRealmOrUpdate(h);
         }
 
         public void write() {

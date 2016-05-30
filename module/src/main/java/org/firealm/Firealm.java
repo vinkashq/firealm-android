@@ -24,6 +24,7 @@ public class Firealm {
     }
 
     private static Realm realm;
+    public static Object defaultRealmModule;
 
     public static Realm getRealm() {
         return realm;
@@ -31,10 +32,10 @@ public class Firealm {
 
     protected static void setRealm() {
         RealmConfiguration configuration = new RealmConfiguration.Builder(getAndroidContext())
-                .name("firealm")
+                .name("firealm.realm")
+                .modules(defaultRealmModule, new FirealmModule())
                 .build();
-        Realm.setDefaultConfiguration(configuration);
-        realm = Realm.getDefaultInstance();
+        realm = Realm.getInstance(configuration);
     }
 
     public static FirebaseDatabase getFirebase() {
