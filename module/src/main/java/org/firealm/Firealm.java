@@ -25,6 +25,11 @@ public class Firealm {
             firealm = new Firealm(context, defaultRealmModule);
         }
 
+        public Builder addFirebaseReferencePath(Class<? extends FirealmModel> cls, String firebaseReferencePath) {
+            firealm.getMap().put(cls, firebaseReferencePath);
+            return this;
+        }
+
         /*public Builder addRealmModules() {
 
             return this;
@@ -40,6 +45,21 @@ public class Firealm {
     private Firealm(Context context, Object defaultRealmModule) {
         setAndroidContext(context);
         setDefaultRealmModule(defaultRealmModule);
+        setMap(new FirealmMap());
+    }
+
+    private FirealmMap map;
+
+    public FirealmMap getMap() {
+        return map;
+    }
+
+    public void setMap(FirealmMap map) {
+        this.map = map;
+    }
+
+    public DatabaseReference getDatabaseReference(Class<? extends FirealmModel> cls) {
+        return getFirebaseInstance().getReference(getMap().get(cls));
     }
 
     private Context androidContext;
@@ -102,17 +122,15 @@ public class Firealm {
         });
     }
 
-    public class Realm implements io.realm.Realm.Transaction {
-
-        FirealmModel firealmModel;
+    public class Realm extends AbstractFirealm implements io.realm.Realm.Transaction {
 
         public Realm(FirealmModel model) {
-            firealmModel = model;
+            super(model);
         }
 
         @Override
         public void execute(io.realm.Realm realm) {
-            RealmObject object = (RealmObject) firealmModel;
+            RealmObject object = (RealmObject) getModel();
             realm.copyToRealmOrUpdate(object);
         }
 
@@ -136,13 +154,11 @@ public class Firealm {
 
     }
 
-    public class Firebase {
-
-        FirealmModel firealmModel;
+    public class Firebase extends AbstractFirealm {
 
         public Firebase(FirealmModel model) {
-            firealmModel = model;
-            setDatabaseReference(getFirebaseInstance().getReference(model.firebaseReferencePath()).child(firealmModel.firealmProperty().getKey()));
+            super(model);
+            setDatabaseReference(Firealm.this.getDatabaseReference(getModel().getClass()).child(getProperty().getKey()));
         }
 
         private DatabaseReference databaseReference;
@@ -156,10 +172,10 @@ public class Firealm {
         }
 
         protected void write(DatabaseReference.CompletionListener listener) {
-            if (firealmModel.firealmProperty().getPriority() == null)
-                getDatabaseReference().setValue(firealmModel, firealmModel.firealmProperty().getPriority(), listener);
+            if (getProperty().getPriority() == null)
+                getDatabaseReference().setValue(getModel(), getProperty().getPriority(), listener);
             else
-                getDatabaseReference().setValue(firealmModel, listener);
+                getDatabaseReference().setValue(getModel(), listener);
         }
 
         public void write(final org.firealm.firebase.WriteListener listener) {

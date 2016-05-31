@@ -7,7 +7,6 @@ import android.util.Log;
 import com.google.firebase.database.DatabaseError;
 
 import org.firealm.Firealm;
-import org.firealm.FirealmProperty;
 import org.firealm.WriteListener;
 
 import io.realm.Realm;
@@ -19,9 +18,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Firealm firealm = new Firealm.Builder(getApplicationContext(), Realm.getDefaultModule()).build();
+        Firealm firealm = new Firealm.Builder(getApplicationContext(), Realm.getDefaultModule())
+                .addFirebaseReferencePath(Book.class, "/list/path/books")
+                .build();
         Book book = new Book();
-        book.setId("book001");
+        book.setId("book002");
         book.setTitle("Agni Siragugal");
         book.setAuthorName("A. P. J. Abdul Kalam");
         book.setPrice(140);

@@ -22,11 +22,6 @@ public class Book extends RealmObject implements FirealmModel {
         return property;
     }
 
-    @Override
-    public String firebaseReferencePath() {
-        return "/list/path/books";
-    }
-
     private String title;
     private String authorName;
     private float price;

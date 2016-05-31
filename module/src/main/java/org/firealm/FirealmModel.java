@@ -9,5 +9,4 @@ import io.realm.RealmObject;
  */
 public interface FirealmModel {
     FirealmProperty firealmProperty();
-    String firebaseReferencePath();
 }
