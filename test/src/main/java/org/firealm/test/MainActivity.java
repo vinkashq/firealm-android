@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.firebase.database.DatabaseError;
-import com.vinkas.firealm.test.R;
 
-import org.firealm.CompletionListener;
+import org.firealm.Firealm;
+import org.firealm.WriteListener;
+
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,11 +18,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Firealm firealm = new Firealm.Builder(getApplicationContext(), Realm.getDefaultModule())
+                .addFirebaseReferencePath(Book.class, "/list/path/books")
+                .build();
         Book book = new Book();
+        book.setId("book002");
         book.setTitle("Agni Siragugal");
         book.setAuthorName("A. P. J. Abdul Kalam");
         book.setPrice(140);
-        book.writeAsync(new CompletionListener() {
+        firealm.writeAsync(book, new WriteListener() {
             @Override
             public void writtenOnRealm() {
                 Log.d("Book", "Book 'Agni Siragugal' written on Realm");
@@ -33,12 +39,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void errorOnRealm(Throwable error) {
-                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Realm");
+                error.printStackTrace();
+                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Realm. " + error.getMessage());
             }
 
             @Override
             public void errorOnFirebase(DatabaseError error) {
-                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Firebase");
+                error.toException().printStackTrace();
+                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Firebase " + error.getMessage());
             }
         });
     }

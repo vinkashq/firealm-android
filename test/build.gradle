@@ -1,8 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
+
+    signingConfigs {
+        debug {
+            storeFile file('V:/Android/Keystores/firealm/debug.keystore')
+        }
+    }
 
     defaultConfig {
         applicationId "org.firealm.test"
@@ -10,6 +17,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled false
     }
     buildTypes {
         release {
