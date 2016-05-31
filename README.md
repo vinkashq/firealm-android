@@ -18,18 +18,37 @@ Add this on your project's root 'build.gradle' file
 Add this on your app folder's 'build.gradle' file
 ```
   dependencies {
-        compile 'org.firealm:firealm-android:0.0.1'
+        compile 'org.firealm:firealm-android:0.9.0'
   }
 ```
 #How to use
 ### Java code
 ##### Firealm Object Model
 ```
-public class Book extends FirealmObject {
+public class Book extends RealmObject implements FirealmModel {
+
+    @PrimaryKey
+    private String id;
+
+    private FirealmProperty property;
+
+    @Override
+    public FirealmProperty firealmProperty() {
+        property = new FirealmProperty(id, null);
+        return property;
+    }
 
     private String title;
     private String authorName;
     private float price;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getAuthorName() {
         return authorName;
@@ -58,12 +77,15 @@ public class Book extends FirealmObject {
 ```
 ##### Writing on Realm and Firebase databases
 ```
+        Firealm firealm = new Firealm.Builder(getApplicationContext(), Realm.getDefaultModule())
+                .addFirebaseReferencePath(Book.class, "/list/path/books")
+                .build();
         Book book = new Book();
+        book.setId("book002");
         book.setTitle("Agni Siragugal");
         book.setAuthorName("A. P. J. Abdul Kalam");
         book.setPrice(140);
-        book.setFirebaseReferencePath("child/path/books", "book001");
-        book.writeAsync(new CompletionListener() {
+        firealm.writeAsync(book, new WriteListener() {
             @Override
             public void writtenOnRealm() {
                 Log.d("Book", "Book 'Agni Siragugal' written on Realm");
@@ -76,12 +98,14 @@ public class Book extends FirealmObject {
 
             @Override
             public void errorOnRealm(Throwable error) {
-                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Realm");
+                error.printStackTrace();
+                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Realm. " + error.getMessage());
             }
 
             @Override
             public void errorOnFirebase(DatabaseError error) {
-                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Firebase");
+                error.toException().printStackTrace();
+                Log.d("Book", "Error while writing the book 'Agni Siragugal' on Firebase " + error.getMessage());
             }
         });
 ```
