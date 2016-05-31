@@ -1,7 +1,7 @@
 package org.firealm.test;
 
 import org.firealm.FirealmModel;
-import org.firealm.FirealmObject;
+import org.firealm.FirealmProperty;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -14,19 +14,30 @@ public class Book extends RealmObject implements FirealmModel {
     @PrimaryKey
     private String id;
 
+    private FirealmProperty property;
+
     @Override
-    public String getPrimaryKey() {
-        return id;
+    public FirealmProperty firealmProperty() {
+        property = new FirealmProperty(id, null);
+        return property;
     }
 
     @Override
-    public void setPrimaryKey(String value) {
-        id = value;
+    public String firebaseReferencePath() {
+        return "/list/path/books";
     }
 
     private String title;
     private String authorName;
     private float price;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getAuthorName() {
         return authorName;
