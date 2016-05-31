@@ -1,6 +1,6 @@
 # Firealm for Android
 
-[![](https://jitpack.io/v/org.firealm/firealm-android.svg)](https://jitpack.io/#org.firealm/firealm-android)
+[![](https://jitpack.io/v/com.vinkas/firealm-android.svg)](https://jitpack.io/#com.vinkas/firealm-android)
 [![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)
 <hr />
 
@@ -18,7 +18,7 @@ Add this on your project's root 'build.gradle' file
 Add this on your app folder's 'build.gradle' file
 ```
   dependencies {
-        compile 'org.firealm:firealm-android:0.9.1'
+        compile 'com.vinkas:firealm-android:0.9.1'
   }
 ```
 #How to use
