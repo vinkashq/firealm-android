@@ -18,7 +18,8 @@ public class Book extends RealmObject implements FirealmModel {
 
     @Override
     public FirealmProperty firealmProperty() {
-        property = new FirealmProperty(id, null);
+        property = new FirealmProperty();
+        property.setKey(getId());
         return property;
     }
 

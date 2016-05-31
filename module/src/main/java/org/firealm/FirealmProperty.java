@@ -18,11 +18,6 @@ public class FirealmProperty extends RealmObject {
 
     }
 
-    public FirealmProperty(String key, @Nullable Object priority) {
-        setKey(key);
-        setPriority(priority);
-    }
-
     @PrimaryKey
     @Required
     private String key;

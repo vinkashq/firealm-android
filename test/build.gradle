@@ -7,7 +7,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file('V:/Android/Keystores/firealm/debug.keystore')
+            storeFile file('debug.keystore')
         }
     }
 
