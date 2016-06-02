@@ -6,8 +6,8 @@ import android.util.Log;
 
 import com.google.firebase.database.DatabaseError;
 
-import org.firealm.Firealm;
-import org.firealm.WriteListener;
+import com.vinkas.firealm.Firealm;
+import com.vinkas.firealm.WriteListener;
 
 import io.realm.Realm;
 

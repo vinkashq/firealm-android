@@ -1,4 +1,4 @@
-package org.firealm;
+package com.vinkas.realm.model;
 
 import android.support.annotation.Nullable;
 
@@ -12,9 +12,9 @@ import io.realm.annotations.Required;
 /**
  * Created by Vinoth on 27-5-16.
  */
-public class FirealmProperty extends RealmObject {
+public class Firebase extends RealmObject {
 
-    public FirealmProperty() {
+    public Firebase() {
 
     }
 

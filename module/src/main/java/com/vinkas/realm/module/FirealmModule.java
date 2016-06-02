@@ -1,4 +1,4 @@
-package org.firealm;
+package com.vinkas.realm.module;
 
 import io.realm.annotations.RealmModule;
 

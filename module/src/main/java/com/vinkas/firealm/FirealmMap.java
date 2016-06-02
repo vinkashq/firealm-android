@@ -1,4 +1,6 @@
-package org.firealm;
+package com.vinkas.firealm;
+
+import com.vinkas.firealm.model.FirealmModel;
 
 import java.util.HashMap;
 import java.util.Map;

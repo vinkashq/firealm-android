@@ -1,7 +1,7 @@
 package org.firealm.test;
 
-import org.firealm.FirealmModel;
-import org.firealm.FirealmProperty;
+import com.vinkas.firealm.model.FirealmModel;
+import com.vinkas.realm.model.Firebase;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -14,11 +14,11 @@ public class Book extends RealmObject implements FirealmModel {
     @PrimaryKey
     private String id;
 
-    private FirealmProperty property;
+    private Firebase property;
 
     @Override
-    public FirealmProperty firealmProperty() {
-        property = new FirealmProperty();
+    public Firebase firealmProperty() {
+        property = new Firebase();
         property.setKey(getId());
         return property;
     }
